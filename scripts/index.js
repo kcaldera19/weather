@@ -12,54 +12,100 @@ let cities = [
 
 window.onload = () => {
     // console.log("Wow I am working")
-    initCitiesDropdown();
+
     let citiesDropdown = document.querySelector("#cityoptions")
-    citiesDropdown.addEventListener("change",displayWeather );
+    populateDropDown(citiesDropdown, cities)
+    citiesDropdown.addEventListener("change", displayWeather);
 
 }
+
+
 async function displayWeather(event) {
 
-    let selectedCity  = cities.find((city)=>{
+    let selectedCity = cities.find((city) => {
         return city.name === event.target.value;
-    })
-    if(!selectedCity){
+    });
+    if (!selectedCity) {
         throw new Error("City not found");
     }
 
-    let latitudeAndLongitude =`${selectedCity.latitude},${selectedCity.longitude}`
+    let latitudeAndLongitude = `${selectedCity.latitude},${selectedCity.longitude}`
+    try {
+        let weatherData = await getWeatherData(latitudeAndLongitude);
+        if (!weatherData || !weatherData.properties || !weatherData.properties.forecast) {
+            throw new Error("Invalid weather data");
+        }
 
-    let weatherData = await getWeatherData(latitudeAndLongitude);
-    let forecast = await getForecastData(weatherData.properties.forecast);
 
-    populateTable(forecast.properties.period)
+
+        let forecastURL = weatherData.properties.forecast;
+        let forecastData = await getForecastData(forecastURL);
+
+        populateTable(forecastData.properties.periods)
+    } catch (error) {
+        console.log(error);
+    }
 
 
 
 }
-function populateTable(data){
-    console.log(data);
+
+
+async function getForecastData(forecastURL) {
+    
+    try{
+        let response = await fetch(forecastURL);
+        let data = await response.json();
+        return data;
+
+    } catch(error){
+        throw new Error("Cant Fetch Forecast",error)
+    }
+   
 }
 
-async function getWeatherData(latitudeAndLongitude){
-    let response = await fetch (` https://api.weather.gov/points/${latitudeAndLongitude}`);
+// to get latitude and longitude
+async function getWeatherData(latitudeAndLongitude) {
+
+    let response = await fetch(` https://api.weather.gov/points/${latitudeAndLongitude}`);
     let data = await response.json()
     return data;
 }
+// get the table
+function populateTable(information) {
+    let tablebody = document.querySelector("#tableBody")
+    tablebody.innerHTML="";
 
+    information.forEach(info =>{
+        let row = tablebody.insertRow();
+        row.insertCell(0).textContent =info.name;
+        row.insertCell(1).textContent =`${info.temperature}${info.temperatureUnit}`;
+        row.insertCell(2).textContent =`${info.windDirection}  ${info.windSpeed}`;
+        row.insertCell(3).textContent =info.shortForecast;
+    })
+    console.log(data);
+}
+// get the options on the dropdwn and adding a default
+function populateDropDown(drowpdown, data) {
+    let defaultOption = document.createElement("option");
+    defaultOption.textContent = "Select a City";
+    defaultOption.value = ""
 
-
-function initCitiesDropdown() {
-
-    let citiesDropdown = document.querySelector("#cityoptions");
+    drowpdown.appendChild(defaultOption);
 
     cities.forEach((city) => {
 
         let newCity = document.createElement("option");
         newCity.textContent = city.name;
         newCity.value = city.name;
-                
-        citiesDropdown.appendChild(newCity);
+
+        drowpdown.appendChild(newCity);
     })
 
 
 }
+
+
+
+
+
