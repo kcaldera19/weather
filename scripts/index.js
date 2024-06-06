@@ -14,30 +14,38 @@ window.onload = () => {
     // console.log("Wow I am working")
     initCitiesDropdown();
     let citiesDropdown = document.querySelector("#cityoptions")
-    citiesDropdown.addEventListener("change", getLocation);
-    // https://api.weather.gov/points/{latitude},{longitude}
+    citiesDropdown.addEventListener("change",displayWeather );
+
 }
-async function getLocation(latitude, longitude) {
-    try {
-        let getLocation = document.getElementById("cityoptions");
-        let response = await fetch(`https://api.weather.gov/points/32.6791,-97.4641`)
-        if (!response.ok) {
-            throw new Error("could not fetch resources");
-        }
+async function displayWeather(event) {
 
-        let data = await response.json();
-
-
-        let result = document.getElementById("results");
-       
-
-
+    let selectedCity  = cities.find((city)=>{
+        return city.name === event.target.value;
+    })
+    if(!selectedCity){
+        throw new Error("City not found");
     }
-    catch (error) {
-        console.error(error)
 
-    }
+    let latitudeAndLongitude =`${selectedCity.latitude},${selectedCity.longitude}`
+
+    let weatherData = await getWeatherData(latitudeAndLongitude);
+    let forecast = await getForecastData(weatherData.properties.forecast);
+
+    populateTable(forecast.properties.period)
+
+
+
 }
+function populateTable(data){
+    console.log(data);
+}
+
+async function getWeatherData(latitudeAndLongitude){
+    let response = await fetch (` https://api.weather.gov/points/${latitudeAndLongitude}`);
+    let data = await response.json()
+    return data;
+}
+
 
 
 function initCitiesDropdown() {
@@ -47,9 +55,9 @@ function initCitiesDropdown() {
     cities.forEach((city) => {
 
         let newCity = document.createElement("option");
-        newCity.value = city.name;
-
         newCity.textContent = city.name;
+        newCity.value = city.name;
+                
         citiesDropdown.appendChild(newCity);
     })
 
