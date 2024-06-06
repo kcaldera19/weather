@@ -6,7 +6,10 @@ let cities = [
     { name: "Portland, ME", latitude: 43.662093, longitude: -70.260251 },
     { name: "Fort Peck, MT", latitude: 48.00855, longitude: -106.45366 },
     { name: "Ogden, UT", latitude: 41.22037, longitude: -111.97746 },
-    { name: "Plain City, UT", latitude: 41.29789, longitude: -112.09397 }
+    { name: "Plain City, UT", latitude: 41.29789, longitude: -112.09397 },
+    { name: "Austin, TX", latitude: 30.2672, longitude: -97.7431 },
+    { name: "Los Angeles, CA", latitude: 34.0522, longitude: -118.2437 },
+    { name: "Boston, MA", latitude: 42.3601, longitude: -71.0589 }
 
 ];
 
@@ -83,10 +86,10 @@ function populateTable(information) {
         row.insertCell(2).textContent =`${info.windDirection}  ${info.windSpeed}`;
         row.insertCell(3).textContent =info.shortForecast;
     })
-    console.log(data);
+    
 }
 // get the options on the dropdwn and adding a default
-function populateDropDown(drowpdown, data) {
+function populateDropDown(drowpdown, ) {
     let defaultOption = document.createElement("option");
     defaultOption.textContent = "Select a City";
     defaultOption.value = ""
